@@ -1,0 +1,23 @@
+
+[Anjuta]
+Maximized=1
+Geometry=1680x973+0+24
+
+[File Loader]
+Files=../../disoutt.for#11%%%../../sDIS_Tables.for#303%%%../../NuclStructFuns.for#1%%%../../d2sDISCC_dxdy.for#1%%%../../d2sDISNC_dxdy.for#23%%%../../DISkin.for#1
+
+[Document Manager]
+bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
+
+[Execution]
+Program uri=../../disoutt
+Run in terminal=2
+Working directories=../../../tDISout
+
+[Build]
+Configuration list=1:Default:%%%1:Debug:Debug%%%1:Profiling:Profiling%%%1:Optimized:Optimized
+Selected Configuration=Default
+BuildArgs/Default=--enable-maintainer-mode
+BuildArgs/Debug=--enable-maintainer-mode 'CFLAGS=-g -O0' 'CXXFLAGS=-g -O0' 'JFLAGS=-g -O0' 'FFLAGS=-g -O0'
+BuildArgs/Profiling=--enable-maintainer-mode 'CFLAGS=-g -pg' 'CXXFLAGS=-g -pg' 'JFLAGS=-g -pg' 'FFLAGS=-g -pg'
+BuildArgs/Optimized=--enable-maintainer-mode 'CFLAGS=-O2' 'CXXFLAGS=-O2' 'JFLAGS=-O2' 'FFLAGS=-O2'

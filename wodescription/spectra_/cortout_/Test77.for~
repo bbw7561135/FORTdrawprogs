@@ -1,0 +1,217 @@
+************************************************************************
+      PROGRAM Test         ! Examples of using the subroutine 'CORTout'
+************************************************************************
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c                                                                      c
+c     Here there are examples of using the subroutine 'CORTout' with   c
+c     the entry 'Flux' for getting the differential energy spectra of  c
+c     atmospheric electron and muon neutrinos and antineutrinos as a   c
+c     function of neutrino energy [currently, from 50 MeV to 30 EeV]   c
+c     and cosine of zenith angle [-1 to 1] for each of 10 underground  c
+c     neutrino detectors listed in the subroutine.                     c
+c                                                                      c
+c     The input data for low and intermediate energies are obtained    c
+c     with a new version of 1D FORTRAN 90 code 'CORT' [1-3] (see also  c
+c     Refs. [4,5] for details and further references). The spectra     c
+c     are averaged over the azimuth angle. Current version includes    c
+c     the data relevant to minimum of solar activity.                  c
+c                                                                      c
+c     NOTE: Above roughly 10 GeV, the AN fluxes DO NOT DEPEND of       c
+c           the site, azimuth angle, and solar activity. Besides,      c
+c           at high energies, the AN fluxes are independent of the     c
+c           sign of cosine of zenith angle.                            c
+c                                                                      c
+c     The high-energy flux is an updated result of Refs. [6,7].        c
+c     The prompt neutrino (PN) contribution is very model dependent.   c
+c     A user must make a choice between the two phenomenological       c
+c     nonperturbative approaches: Recombination Quark-Parton Model     c
+c     (RQPM) and Quark-Gluon String Model (QGSM).                      c
+c                                                                      c
+c     ---------------------------------------------------------------- c
+c     REFERENCES:                                                      c
+c     ---------------------------------------------------------------- c
+c                                                                      c
+c     [1] G. Fiorentini, V.A. Naumov, and F.L. Villante, "Atmospheric  c
+c         neutrino flux supported by recent muon experiments", Phys.   c
+c         Lett. B 510 (2001) 173 (hep-ph/0103322).                     c
+c     [2] G. Fiorentini, V.A. Naumov, and F.L. Villante, "Atmospheric  c
+c         neutrino flux and muon data", in: Proceedings of the 27th    c
+c         International Cosmic Ray Conference, Hamburg, 2001, Vol.3,   c
+c         p.1218 (hep-ph/0106014).                                     c
+c     [3] V.A. Naumov, "Atmospheric muons and neutrinos", in: Proc.    c
+c         of the 2nd Workshop on Methodical Aspects of Underwater/     c
+c         Underice Neutrino Telescopes, Hamburg, August 15-16, 2001    c
+c         [in press] (hep-ph/0201310).                                 c
+c     [4] E.V. Bugaev and V.A. Naumov, "Cosmic-ray muons and neutrinos c
+c         at low and intermediate energies", Yad. Fiz. 45 (1987) 1380  c
+c         [Sov. J. Nucl. Phys. 45 (1987) 857].                         c
+c     [5] E.V. Bugaev and V.A. Naumov, "On the interpretation of the   c
+c         Kamiokande neutrino experiment", Phys. Lett. B 232 (1989)    c
+c         391.                                                         c
+c     [6] V.A. Naumov, T.S. Sinegovskaya, and S.I. Sinegovsky,         c
+c         "The Kl3 form factors and atmospheric neutrino flavor ratio  c
+c         at high energies", Il Nuovo Cimento 111A, No.2 (1998) 129    c
+c         [see also e-print hep-ph/9802410].                           c
+c     [7] E.V. Bugaev, V.A. Naumov, S.I. Sinegovsky, and E.S.          c
+c         Zaslavskaya, "Prompt leptons in cosmic rays", Il Nuovo       c
+c         Cimento 12C, No.1 (1989) 41.                                 c
+c                                                                      c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      INCLUDE 'Include.f'
+
+cc    -----------------------------------------------------------------
+cc    ATTENTION! Before running the program, user MUST specify the
+cc               following 4 variables:
+cc    -----------------------------------------------------------------
+
+      INTEGER*4    Exp/5/       ! Neutrino experiment number
+      CHARACTER*3  SA/'min'/    ! Level of solar activity
+      INTEGER*4    PNmod/2/     ! Prompt Neutrino production Model
+      CHARACTER*38 Output/'E:/FORTRAN/Output/CORT/TestNu/CORTout/'/
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c                                                                      c
+c     ---------------------------------------------------------------- c
+c     Possible values for variable 'Exp':                              c
+c     ---------------------------------------------------------------- c
+c                                                                      c
+c      1 - BUST, Baksan Valley, Kabardino-Balkaria, Russia             c
+c      2 - Frejus, Frejus tunnel, Alps, France                         c
+c      3 - HPW (Harvard-Purdue-Wisconsin), Park City, Utah, USA        c
+c      4 - IMB (Irvine-Michigan-Brookhaven), Cleveland, Ohio, USA      c
+c      5 - Kamiokande & Super-Kamiokande, Kamioka Mine, Japan          c
+c      6 - KGF (Kolar Gold Fields), India                              c
+c      7 - LNGS (MACRO, LVD, ICARUS, etc.), Gran Sasso, Italy          c
+c      8 - NUSEX, Mont Blanc, France                                   c
+c      9 - SNO, Sudbury, Canada                                        c
+c     10 - SOUDAN 2, Mine State Park, Minnesota, USA                   c
+c                                                                      c
+c     ---------------------------------------------------------------- c
+c     Possible values for variable 'SA':                               c
+c     ---------------------------------------------------------------- c
+c                                                                      c
+c     'min' - Minimum level of solar activity [default],               c
+c     'mid' - Medium  level of solar activity,                         c
+c     'max' - Maximum level of solar activity,                         c
+c                                                                      c
+c     ---------------------------------------------------------------- c
+c     Possible values for variable 'PNmod':                            c
+c     ---------------------------------------------------------------- c
+c                                                                      c
+c     0 - No PN contribution (only conventional neutrinos) [default],  c
+c     1 - Recombination Quark-Parton Model (RQPM),                     c
+c     2 - Quark-Gluon String Model (QGSM).                             c
+c                                                                      c
+c     ---------------------------------------------------------------- c
+c     Variable 'Output'                                                c
+c     ---------------------------------------------------------------- c
+c                                                                      c
+c     Variable 'Output' defines the path the output table 'Test.dat'   c
+c     If user does not want to see this table the first STOP operator  c
+c     in this demonstration program must be uncommented.               c
+c                                                                      c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+cc    -----------------------------------------------------------------
+cc    ATTENTION! Before running the program, user also MUST define 5
+cc               variables ('Tab', 'Out', 'Test', 'Res', and 'B')
+cc               described in the subroutine 'CORTout'. 
+cc               In fact, only variable 'Tab' is important (it defines
+cc               the path to the AN flux tables), while 4 others can
+cc               be lived with their default values.
+cc    -----------------------------------------------------------------
+
+      COMMON /InOut/Enu,cosZA,Fnu_e1,Fnu_e2,Fnu_m1,Fnu_m2
+
+      CALL CORTout(Exp,SA,PNmod)    ! Initializing the subroutine
+
+c     -----------------------------------------------------------------
+c
+c     After one call of the subroutine 'CORTout' for given values
+c     of Exp, SA, and PNmod, one can repeatedly call the subroutine
+c     (entry) 'Flux' (by DO loops, for example), changing values of
+c     (anti)neutrino energy and cosine of zenith angle.
+c
+c     NOTE: cosZA = -1, 0, and +1 are for upward-going, horizontal,
+c           and downward-going neutrinos, respectively.
+c
+c     -----------------------------------------------------------------
+
+      Enu   =  0.111D0              ! Neutrino energy [GeV]
+      cosZA = -0.333D0              ! Cosine of zenith angle
+
+      CALL Flux(PNmod)              ! Getting the result
+
+c     -----------------------------------------------------------------
+c
+c     In the example below, the output is printed into the screen.
+c     Clearly, user can (re)organize the output for his/her own needs.
+c
+c     -----------------------------------------------------------------
+
+      PRINT *, ' '
+      PRINT *, ' Prompt Neutrino model (PNmod)',PNmod
+      PRINT *, ' Neutrino energy [GeV]:       ',Enu
+      PRINT *, ' Cosine of zenith angle:      ',cosZA
+      PRINT *, ' '
+
+c     Output of the differential energy spectra
+
+      PRINT *, ' -------------------------'
+      PRINT *, ' dN/dE [1/(m**2 s sr GeV)]'
+      PRINT *, ' -------------------------'
+      PRINT *, ' Electron neutrinos:      ',Fnu_e1
+      PRINT *, ' Electron antineutrinos:  ',Fnu_e2
+      PRINT *, ' Muon neutrinos:          ',Fnu_m1
+      PRINT *, ' Muon antineutrinos:      ',Fnu_m2
+      PRINT *, '                          '
+
+c     This specific output is for comparison with the Bartol'95 tables
+
+      C=1.0D-4*Enu
+
+      PRINT *, ' ----------------------------'
+      PRINT *, ' dN/d(ln(E)) [1/(cm**2 s sr)]'
+      PRINT *, ' ----------------------------'
+      PRINT *, ' Electron neutrinos:         ',C*Fnu_e1
+      PRINT *, ' Electron antineutrinos:     ',C*Fnu_e2
+      PRINT *, ' Muon neutrinos:             ',C*Fnu_m1
+      PRINT *, ' Muon antineutrinos:         ',C*Fnu_m2
+      PRINT *, '                             '
+
+c     -----------------------------------------------------------------
+c
+c     The next example is for an output of the AN differential energy
+c     spectra as a function of energy at a given zenith angle into a
+c     file [neutrino energy range is 50 MeV to 25 EeV with equidistant
+c     values of LOG10(Energy)].
+c
+c     STOP                   ! uncomment if you don't want this output
+c
+c     -----------------------------------------------------------------
+
+      cosZA=0.0D0            ! Cosine of zenith angle
+      NE=601                 ! Number of neutrino energies for output
+      LgEmin=DLOG10(0.05D00) ! 50 MeV is the minimum available energy
+      LgEmax=DLOG10(2.50D10) ! 25 EeV is an energy near the GZK cutoff
+
+      OPEN (1,FILE=Output//'Test.dat')
+
+      StLgE=(LgEmax-LgEmin)/(NE-1)
+
+         DO i=1,NE
+         Log10E=LgEmin+StLgE*(i-1)
+         Enu=Ten**Log10E                  ! Neutrino energy [GeV] 
+         CALL Flux(PNmod)                 ! Getting the result
+         WRITE(1,10) Enu,Fnu_e1,Fnu_e2,Fnu_m1,Fnu_m2
+      endDO
+
+      CLOSE(1)
+
+      STOP
+
+   10 FORMAT(5(1pE11.4))
+
+      END
